@@ -74,3 +74,33 @@ for(i in 1:ncol(sce_glm_pca)){
   
   barcode_neuro_score[i] <- sum(scored$score)
 }
+
+# NE score ranking
+logcounts(sce_glm_pca)[rowData(sce_glm_pca)$Symbol %in% neuro$Loading,] %>% 
+  tidy_sparse_matrix() %>% 
+  left_join(colData(sce_glm_pca) %>% 
+              as.data.frame() %>% 
+              select(Barcode, clust),
+            by = c("column" = "Barcode")) %>% 
+  left_join(neuro_joined, by = c("row" = "ID")) %>% 
+  mutate(weighted_expression = value*PC1.v) %>% 
+  group_by(clust, Loading) %>% 
+  summarize(mean_weighted_expression = mean(weighted_expression, na.rm = T)) %>% 
+  spread(clust,
+         mean_weighted_expression) %>% 
+  write_csv("/Volumes/Group05/CCBB/Single-Cell-Bioinformatics-2019-October-03/NE-score-weighted-expression-values.csv")
+
+# AR score ranking
+logcounts(sce_glm_pca)[rownames(logcounts(sce_glm_pca)) %in% ar_signature_weights$`Ensemble ID`,] %>% 
+  broom::tidy() %>% 
+  left_join(colData(sce_glm_pca) %>% 
+              as.data.frame() %>% 
+              select(Barcode, clust),
+            by = c("column" = "Barcode")) %>% 
+  left_join(ar_signature_weights, by = c("row" = "Ensemble ID")) %>% 
+  mutate(weighted_expression = value*`BinReg Coef`) %>% 
+  group_by(clust, `Gene Symbol`) %>% 
+  summarize(mean_weighted_expression = mean(weighted_expression, na.rm = T)) %>% 
+  spread(clust,
+         mean_weighted_expression) %>% 
+  write_csv("/Volumes/Group05/CCBB/Single-Cell-Bioinformatics-2019-October-03/AR-signature-score-weighted-expression-values.csv")
