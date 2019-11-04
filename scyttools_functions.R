@@ -1,3 +1,18 @@
+library(DropletUtils)
+library(scater)
+library(scran)
+library(annotables)
+library(tidyverse)
+library(glmpca)
+library(kohonen)
+library(ggraph)
+library(tidygraph)
+library(igraph)
+library(Seurat)
+library(edgeR)
+
+set.seed(8675309)
+
 cor_dist <- function(som_codes, method){
   corr_mat <- cor(t(som_codes),
                   method = method)
