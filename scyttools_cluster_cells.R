@@ -6,7 +6,7 @@ require(methods)
 "
 Usage:
 scyttools_cluster_cells.R (-h | --help | --version)
-scyttools_cluster_cells.R DIR
+scyttools_cluster_cells.R DIR OUT
 
 Description:   This script performs dimensionality reduction
 
@@ -14,7 +14,8 @@ Options:
 --version       Show the current version.
 
 Arguments:
-DIR    Provide directory where scyttools.args.Rdata file is located
+RDS    Provide single cell experiment object Rdata file
+OUT    Provide output file
 
 " -> doc
 
@@ -40,7 +41,6 @@ load(args$RDS)
 
 g <- buildSNNGraph(sce_glm_pca, k=10, use.dimred = 'GLM_PCA')
 clust <- igraph::cluster_walktrap(g)$membership
-table(clust)
 
 colData(sce_glm_pca)$clust <- factor(clust)
 
@@ -199,7 +199,7 @@ colData(sce_glm_pca) <- colData(sce_glm_pca) %>%
 ## write out new SingleCellExperiment Object
 
 save(sce_glm_pca,
-     paste(RESULTS_DIR, "scyttools_sce_cluster_cells.Rdata"))
+          file = args$OUT)
 
 ##########################################################################
 ############################     End code     ############################

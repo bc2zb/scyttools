@@ -6,7 +6,7 @@ require(methods)
 "
 Usage:
 scyttools_quality_control.R (-h | --help | --version)
-scyttools_quality_control.R DIR
+scyttools_quality_control.R DIR OUT
 
 Description:   This script performs quality control on 10x genomics scRNA gene barcode matrix data from the cellranger pipeline
 
@@ -15,17 +15,12 @@ Options:
 
 Arguments:
 DIR    Provide directory where scyttools.args.Rdata file is located
+OUT    Provide output file
 
 " -> doc
 
 
 args <- docopt(doc)
-
-ARGS_DIR <- args$DIR
-
-load(paste(ARGS_DIR, "scyttools.args.Rdata", sep = ""))
-
-RESULTS_DIR <- args$OUT
 
 source("scyttools_functions.R")
 
@@ -81,7 +76,7 @@ rowData(sce) <- cbind(rowData(sce),
 ## write out new SingleCellExperiment Object
 
 save(sce,
-     paste(RESULTS_DIR, "scyttools_sce_quality_control.Rdata"))
+     file = args$OUT)
 
 ##########################################################################
 ############################     End code     ############################

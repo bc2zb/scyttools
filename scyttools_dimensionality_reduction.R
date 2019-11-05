@@ -6,7 +6,7 @@ require(methods)
 "
 Usage:
 scyttools_dimensionality_reduction.R (-h | --help | --version)
-scyttools_dimensionality_reduction.R DIR
+scyttools_dimensionality_reduction.R RDS OUT
 
 Description:   This script performs dimensionality reduction
 
@@ -14,18 +14,13 @@ Options:
 --version       Show the current version.
 
 Arguments:
-DIR    Provide directory where scyttools.args.Rdata file is located
+RDS    Provide single cell experiment object Rdata file
+OUT    Provide output file
 
 " -> doc
 
 
 args <- docopt(doc)
-
-ARGS_DIR <- args$DIR
-
-load(paste(ARGS_DIR, "scyttools.args.Rdata", sep = ""))
-
-RESULTS_DIR <- args$OUT
 
 source("scyttools_functions.R")
 
@@ -61,7 +56,7 @@ rowData(sce_glm_pca) <- rowData(sce_glm_pca) %>%
 ## write out new SingleCellExperiment Object
 
 save(sce_glm_pca,
-     paste(RESULTS_DIR, "scyttools_sce_dimensionality_reduction.Rdata"))
+          file = args$OUT)
 
 ##########################################################################
 ############################     End code     ############################

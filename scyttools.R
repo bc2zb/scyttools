@@ -40,43 +40,52 @@ if(args$`--version` == T){ # returns version if version is requested
   cat("\nVersion is 0.1\n")
 }else{ # Analysis begins
   # create new sub directory for each instance of cyttools
-  RESULTS_DIR <- args$OUT
-  dir.create(RESULTS_DIR, showWarnings = F, recursive = T)
-  argsFileName <- paste(RESULTS_DIR, "scyttools.args", ".Rdata", sep = "")
-  save(args, file = argsFileName)
+  RESULTS_DIR <- dirname(args$OUT)
+  if(RESULTS_DIR != "."){
+    dir.create(RESULTS_DIR, showWarnings = F, recursive = T)
+  }
   
   if(args$`--quality_control` == T){
     
     COMMAND <- paste("Rscript scyttools_quality_control.R",
-                     paste("'", RESULTS_DIR, "'", sep = ""))
+                     paste("'", args$DIR, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
+    
+    cat(COMMAND, "\n")
+    
     system(command = COMMAND)
   }else if(args$`--dimensionality_reduction` == T){
     
     COMMAND <- paste("Rscript scyttools_dimensionality_reduction.R",
-                     paste("'", RESULTS_DIR, "'", sep = ""))
+                     paste("'", args$RDS, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
   }else if(args$`--cluster_cells` == T){
     
     COMMAND <- paste("Rscript scyttools_cluster_cells.R",
-                     paste("'", RESULTS_DIR, "'", sep = ""))
+                     paste("'", args$RDS, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
   }else if(args$`--trajectory_inference` == T){
     
     COMMAND <- paste("Rscript scyttools_trajectory_inference.R",
-                     paste("'", RESULTS_DIR, "'", sep = ""))
+                     paste("'", args$RDS, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
   }else if(args$`--geneset_scoring` == T){
     
     COMMAND <- paste("Rscript scyttools_geneset_scoring.R",
-                     paste("'", RESULTS_DIR, "'", sep = ""))
+                     paste("'", args$RDS, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
   }else if(args$`--differential_expression` == T){
     
     COMMAND <- paste("Rscript scyttools_differential_expression.R",
-                     paste("'", RESULTS_DIR, "'", sep = ""))
+                     paste("'", args$RDS, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
   }else{
-    cat(paste(c("\nWARNING:","\ncommand not found:", args$`--cluster`), collapse = "\n"), "\n")  
+    cat(paste(c("\nWARNING:","\ncommand not found:"), collapse = "\n"), "\n")  
   } 
 
 }
