@@ -6,7 +6,7 @@ require(methods)
 "
 Usage:
 scyttools_cluster_cells.R (-h | --help | --version)
-scyttools_cluster_cells.R DIR OUT
+scyttools_cluster_cells.R RDS OUT
 
 Description:   This script performs dimensionality reduction
 
@@ -21,12 +21,6 @@ OUT    Provide output file
 
 
 args <- docopt(doc)
-
-ARGS_DIR <- args$DIR
-
-load(paste(ARGS_DIR, "scyttools.args.Rdata", sep = ""))
-
-RESULTS_DIR <- args$OUT
 
 source("scyttools_functions.R")
 
