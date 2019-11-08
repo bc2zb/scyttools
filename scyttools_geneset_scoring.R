@@ -25,6 +25,7 @@ args <- docopt(doc)
 source("scyttools_functions.R")
 
 library(msigdbr)
+library(data.table)
 
 ##########################################################################
 ############################ R code goes here ############################
@@ -62,6 +63,35 @@ zmad_sparse <- data.frame(row = names(logcounts(sce_glm_pca)[,1])) %>%
 
 assay(sce_glm_pca, "zmad") <- zmad_sparse[,colnames(zmad_sparse) != fake_cell]
 
+geneset_table <- msigdbr() %>% 
+  select(gs_name, entrez_gene) %>% 
+  left_join(grch38 %>% 
+              distinct(ensgene, entrez),
+            by = c("entrez_gene" = "entrez")) %>% 
+  setDT()
+
+dt_zmad <- zmad_sparse %>% 
+  tidy_sparse_matrix() %>% 
+  setDT()
+
+zmad_scores <- lapply(unique(geneset_table$gs_name), function(geneset){
+  barcode_scores <- dt_zmad[row %in% geneset_table$ensgene[geneset_table$gs_name == geneset], mean(value, na.rm = T), by = column]  
+  return(barcode_scores)
+})
+
+names(zmad_scores) <- unique(geneset_table$gs_name)
+zmad_scores <- zmad_scores %>% 
+  bind_rows(.id = "gs_name") %>% 
+  spread(gs_name,
+         V1)
+
+colData(sce_glm_pca) <- colData(sce_glm_pca) %>%
+  as.data.frame() %>%
+  rownames_to_column("row_names") %>% 
+  left_join(zmad_scores,
+            by = c("Barcode" = "column")) %>%
+  column_to_rownames("row_names") %>% 
+  DataFrame()
 
 # load in signatures
 neuro <- read_csv("~/lgcp/rnaseq/analysis-scripts/neuro_reference_vpca_loadings_grch37.csv")
@@ -93,7 +123,6 @@ for(i in 1:ncol(sce_glm_pca)){
 
 sce_glm_pca$NE_score <- barcode_neuro_score
 sce_glm_pca$AR_score <- barcode_ar_signature_score
-
 
 ## write out new SingleCellExperiment Object
 save(sce_glm_pca,
