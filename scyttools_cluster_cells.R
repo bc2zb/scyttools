@@ -36,7 +36,24 @@ load(args$RDS)
 g <- buildSNNGraph(sce_glm_pca, k=10, use.dimred = 'GLM_PCA')
 clust <- igraph::cluster_walktrap(g)$membership
 
+# perform approximation of graph abstraction and partitioning
+
+ratios <- (clusterModularity(g,
+                             clust,
+                             get.values = T)$observed/clusterModularity(g,
+                                                                        clust,
+                                                                        get.values = T)$expected)
+
+
+cluster.gr <- igraph::graph_from_adjacency_matrix(ratios, 
+                                                  mode="upper", weighted=TRUE, diag=FALSE)
+
+paga_approximate_clusters <- data.frame(clust = clust) %>% 
+  left_join(data.frame(supergroups = cluster_walktrap(cluster.gr)$membership) %>% 
+  mutate(clust = 1:nrow(.)))
+
 colData(sce_glm_pca)$clust <- factor(clust)
+colData(sce_glm_pca)$supergroups <- factor(paga_approximate_clusters$supergroups)
 
 # perform som-kmeans-signature-scoring
 
