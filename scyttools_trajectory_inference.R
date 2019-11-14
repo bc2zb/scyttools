@@ -37,6 +37,11 @@ load(args$RDS)
 
 cds_traj <- lapply(seq_along(unique(sce_glm_pca$supergroups)), function(supergroup){
   sce_supergroup <- sce_glm_pca[,sce_glm_pca$supergroups == supergroup]
+  
+  hs.pairs <- readRDS(system.file("exdata", "human_cycle_markers.rds", package="scran"))
+  cell_cycle_scores <- cyclone(sce_supergroup,
+                               pairs = hs.pairs)
+  
   cds <- convertTo(sce_supergroup, type = "monocle",
                    row.fields = c(1:ncol(rowData(sce_supergroup))),
                    col.fields = c(1:ncol(colData(sce_supergroup))),
@@ -51,13 +56,40 @@ cds_traj <- lapply(seq_along(unique(sce_glm_pca$supergroups)), function(supergro
   cds <- setOrderingFilter(cds, row.names(fData(cds))[fData(cds)$dev <= 2000])
   cds <- reduceDimension(cds, method = "DDRTree")
   cds <- orderCells(cds)
+  
+  cds$cyclone_phase <- cell_cycle_scores$phases
+  cds$cyclone_G1_score <- cell_cycle_scores$scores$G1
+  cds$cyclone_G2M_score <- cell_cycle_scores$scores$G2M
+  cds$cyclone_S_score <- cell_cycle_scores$scores$S
+  
+  cds$cyclone_G1_score_normalized <- cell_cycle_scores$normalized.scores$G1
+  cds$cyclone_G2M_score_normalized <- cell_cycle_scores$normalized.scores$G2M
+  cds$cyclone_S_score_normalized <- cell_cycle_scores$normalized.scores$S
+  
+  phase_state_counts <- pData(cds) %>%
+    as.data.frame() %>%
+    group_by(cyclone_phase, State) %>%
+    count() %>%
+    ungroup() %>% 
+    spread(cyclone_phase, n, fill = 0) %>% 
+    mutate(score = (S+G2M)/(S+G2M+G1))
+  
+  cds <- orderCells(cds, root_state = phase_state_counts$State[which(phase_state_counts$score == max(phase_state_counts$score))])
+  
   return(cds)
 })
 
 cds_col_data <- lapply(cds_traj, function(cds){
   col_data <- data.frame(cell_index = cds$cell_index,
                          monocle_pseudotime = cds$Pseudotime,
-                         monocle_state = cds$State)
+                         monocle_state = cds$State,
+                         cyclone_phase = cds$cyclone_phase, 
+                         cyclone_G1_score = cds$cyclone_G1_score,
+                         cyclone_G2M_score = cds$cyclone_G2M_score,
+                         cyclone_S_score = cds$cyclone_S_score,
+                         cyclone_G1_score_normalized = cds$cyclone_G1_score_normalized,
+                         cyclone_G2M_score_normalized = cds$cyclone_G2M_score_normalized,
+                         cyclone_S_score_normalized = cds$cyclone_S_score_normalized)
   return(col_data)
 }) %>% bind_rows()
 
