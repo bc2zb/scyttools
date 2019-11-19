@@ -66,13 +66,21 @@ cds_traj <- lapply(seq_along(unique(sce_glm_pca$supergroups)), function(supergro
   cds$cyclone_G2M_score_normalized <- cell_cycle_scores$normalized.scores$G2M
   cds$cyclone_S_score_normalized <- cell_cycle_scores$normalized.scores$S
   
+  cds_state_levels <- c(0, levels(cds$State))
+  
   phase_state_counts <- pData(cds) %>%
     as.data.frame() %>%
+    mutate(cyclone_phase = factor(cyclone_phase, levels = c("G1", "S", "G2M"))) %>% 
     group_by(cyclone_phase, State) %>%
     count() %>%
-    ungroup() %>% 
+    ungroup() %>%
+    mutate(State = factor(State, levels = cds_state_levels)) %>% 
+    bind_rows(data.frame(cyclone_phase = c("G1", "S", "G2M"),                  # add in a fake state to ensure all phases are represented
+                         State = factor(c(0,0,0), levels = cds_state_levels),
+                         n = c(1,1,1))) %>% 
     spread(cyclone_phase, n, fill = 0) %>% 
-    mutate(score = (S+G2M)/(S+G2M+G1))
+    mutate(score = (S+G2M)/(S+G2M+G1)) %>% 
+    filter(State != 0)                                                         # remove fake state
   
   cds <- orderCells(cds, root_state = phase_state_counts$State[which(phase_state_counts$score == max(phase_state_counts$score))])
   
