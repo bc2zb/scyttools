@@ -79,10 +79,15 @@ cds_traj <- lapply(seq_along(unique(sce_glm_pca$supergroups)), function(supergro
                          State = factor(c(0,0,0), levels = cds_state_levels),
                          n = c(1,1,1))) %>% 
     spread(cyclone_phase, n, fill = 0) %>% 
-    mutate(score = (S+G2M)/(S+G2M+G1)) %>% 
-    filter(State != 0)                                                         # remove fake state
+    mutate(score = ((S+G2M)/(S+G2M+G1)),
+           count = (S+G2M+G1),
+           num_div = score*count) %>% 
+    filter(State != 0) %>%                                                     # remove fake state
+    mutate(State = factor(State, levels = levels(cds$State)))
   
-  cds <- orderCells(cds, root_state = phase_state_counts$State[which(phase_state_counts$score == max(phase_state_counts$score))])
+  root_state <- phase_state_counts$State[which(phase_state_counts$num_div == max(phase_state_counts$num_div))]
+  
+  cds <- orderCells(cds, root_state = as.character(root_state))
   
   return(cds)
 })
