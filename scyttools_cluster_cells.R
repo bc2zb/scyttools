@@ -58,10 +58,8 @@ cell_data_set <- new_cell_data_set(expression_data = counts(sce_glm_pca),
                                    cell_metadata = colData(sce_glm_pca),
                                    gene_metadata = rowData(sce_glm_pca))
 
-cell_data_set <- preprocess_cds(cell_data_set, num_dim = 2)
-cell_data_set <- reduce_dimension(cell_data_set, reduction_method = "UMAP")
 reducedDim(cell_data_set, "UMAP") <- reducedDim(sce_glm_pca, "UMAP")
-cell_data_set <- cluster_cells(cell_data_set)
+cell_data_set <- cluster_cells(cell_data_set, partition_qval = 0.05)
 
 colData(sce_glm_pca)$clust <- factor(clust)
 colData(sce_glm_pca)$supergroups <- factor(cell_data_set@clusters[["UMAP"]]$partitions)
