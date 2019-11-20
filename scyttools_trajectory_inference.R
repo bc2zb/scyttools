@@ -42,12 +42,12 @@ cds_traj <- lapply(seq_along(unique(sce_glm_pca$supergroups)), function(supergro
   cell_cycle_scores <- cyclone(sce_supergroup,
                                pairs = hs.pairs)
   
+  rowData(sce_supergroup)$gene_short_name <- rowData(sce_supergroup)$Symbol
+  
   cds <- convertTo(sce_supergroup, type = "monocle",
                    row.fields = c(1:ncol(rowData(sce_supergroup))),
                    col.fields = c(1:ncol(colData(sce_supergroup))),
                    expressionFamily = negbinomial.size())
-  
-  featureData(cds)$gene_short_name <- rowData(sce_supergroup)$Symbol
   
   cds <- estimateSizeFactors(cds) 
   cds <- estimateDispersions(cds) 
