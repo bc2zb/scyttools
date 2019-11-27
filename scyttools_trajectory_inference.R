@@ -61,6 +61,11 @@ graph_info <- data.frame(vertex_name = igraph::V(principal_graph(cell_data_set)[
 terminal_neighborhoods <- ego(cell_data_set@principal_graph$UMAP, order = 3, nodes = as.character((graph_info %>% filter(vertex_degree == 1))$vertex_name))
 names(terminal_neighborhoods) <- as.character((graph_info %>% filter(vertex_degree == 1))$vertex_name)
 
+if(length(terminal_neighborhoods) == 0){
+  terminal_neighborhoods <- ego(cell_data_set@principal_graph$UMAP, order = 3, nodes = as.character((graph_info)$vertex_name))
+  names(terminal_neighborhoods) <- as.character((graph_info)$vertex_name)
+}
+
 terminal_neighborhoods <- lapply(terminal_neighborhoods, function(neighborhood){return(data.frame(neighbors = as.vector(neighborhood)))}) %>%
   bind_rows(.id = "terminal_node")
 

@@ -11,7 +11,8 @@ scyttools.R --dimensionality_reduction RDS OUT
 scyttools.R --cluster_cells RDS OUT
 scyttools.R --trajectory_inference RDS OUT
 scyttools.R --geneset_scoring RDS OUT
-scyttools.R --differential_expression RDS OUT
+scyttools.R --export_results RDS OUT
+
 
 Description:   This program is a command line interface to running automated single cell RNA sequencing analysis
 
@@ -23,7 +24,7 @@ Options:
 --cluster_cells               Cluster cells using GLM PCA and self-organizing maps
 --trajectory_inference        Perform trajectory inference using monocle version 2
 --geneset_scoring             Score cells and clusters for geneset activity
---differential_expression     Perform differential expression analysis of clusters
+--export_results              Perform differential expression analysis of clusters and export
 
 Arguments:
 
@@ -78,9 +79,9 @@ if(args$`--version` == T){ # returns version if version is requested
                      paste("'", args$RDS, "'", sep = ""),
                      paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
-  }else if(args$`--differential_expression` == T){
+  }else if(args$`--export_results` == T){
     
-    COMMAND <- paste("Rscript scyttools_differential_expression.R",
+    COMMAND <- paste("Rscript scyttools_export_results.R",
                      paste("'", args$RDS, "'", sep = ""),
                      paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
