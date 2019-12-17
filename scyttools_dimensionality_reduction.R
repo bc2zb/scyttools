@@ -38,7 +38,8 @@ filtered_counts <- filtered_counts[rowSums(filtered_counts) > 0,]
 
 glmpca_poi_30 <- glmpca(as.matrix(filtered_counts),
                         30,
-                        fam = "poi")
+                        fam = "poi",
+                        penalty = 100)
 
 reducedDim(sce, "GLM_PCA") <- as.matrix(glmpca_poi_30$factors)
 
