@@ -34,7 +34,7 @@ library(monocle3)
 load(args$RDS)
 
 # add back cell cycle code
-hs.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
+hs.pairs <- readRDS(system.file("exdata", "human_cycle_markers.rds", package="scran"))
 cell_cycle_scores <- cyclone(sce_glm_pca,
                              pairs = hs.pairs)
 
