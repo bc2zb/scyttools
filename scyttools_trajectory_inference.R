@@ -34,7 +34,7 @@ library(monocle3)
 load(args$RDS)
 
 # add back cell cycle code
-hs.pairs <- readRDS(system.file("exdata", "human_cycle_markers.rds", package="scran"))
+hs.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
 cell_cycle_scores <- cyclone(sce_glm_pca,
                              pairs = hs.pairs)
 
@@ -91,8 +91,15 @@ root_nodes <- cell_data_set@principal_graph_aux$UMAP$pr_graph_cell_proj_closest_
             num_G2M = sum(G2M),
             fraction_dividing = (num_dividing_cells + num_G2M)/(num_dividing_cells + num_G2M + num_G1)) %>% 
   ungroup() %>% 
-  group_by(component_membership) %>% 
-  summarise(root_node = terminal_node[which(num_dividing_cells == max(num_dividing_cells))])
+  group_by(component_membership)
+
+if(all(root_nodes$num_dividing_cells == 0)){
+  root_nodes <- root_nodes %>% 
+    summarise(root_node = terminal_node[which(fraction_dividing == max(fraction_dividing))])
+}else{
+  root_nodes <- root_nodes %>% 
+    summarise(root_node = terminal_node[which(num_dividing_cells == max(num_dividing_cells))])
+}
   
 cell_data_set <- order_cells(cell_data_set, root_pr_nodes = root_nodes$root_node)
 colData(sce_glm_pca)$monocle_pseudotime <- cell_data_set@principal_graph_aux$UMAP$pseudotime
