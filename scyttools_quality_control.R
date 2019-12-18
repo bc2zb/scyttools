@@ -40,6 +40,15 @@ location_tidy <- rowData(sce) %>%
   distinct()
 is.mito <- which(location_tidy$chr == "MT")
 
+if(length(is.mito) == 0){
+  location_tidy <- rowData(sce) %>% 
+    as.data.frame() %>% 
+    left_join(grcm38 %>% 
+                select(ensgene, chr), by = c("ID" = "ensgene")) %>% 
+    distinct()
+  is.mito <- which(location_tidy$chr == "MT")
+}
+
 # should be passing in multicore param from command line
 # QC steps, could probably be a separate script, then QC'd data can be passed around to each of the subroutines
 sce <- calculateQCMetrics(sce, feature_controls=list(Mito=is.mito), BPPARAM = MulticoreParam(7))
