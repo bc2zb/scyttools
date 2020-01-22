@@ -55,7 +55,10 @@ glmpca_poi_30 <- glmpca(as.matrix(filtered_counts),
                         penalty = 1)
 
 reducedDim(sce_combined, "GLM_PCA") <- as.matrix(glmpca_poi_30$factors)
-reducedDim(sce_combined, "GLM_PCA_Corrected") <- as.matrix(HarmonyMatrix(as.matrix(glmpca_poi_30$factors), colData(sce_combined)$run_id, do_pca = F))
+reducedDim(sce_combined, "GLM_PCA_Corrected") <- as.matrix(HarmonyMatrix(as.matrix(glmpca_poi_30$factors),
+                                                                         colData(sce_combined)$run_id,
+                                                                         do_pca = F,
+                                                                         max.iter.harmony = 100))
 
 sce_glm_pca <- runUMAP(sce_combined, use_dimred = "GLM_PCA_Corrected", pca = 30)
 
