@@ -30,7 +30,10 @@ source("scyttools_functions.R")
 
 # load single cell data
 sce <- read10xCounts(args$DIR)
+sce <- scDblFinder(sce,
+                   verbose = F)
 
+sce <- sce[,sce$scDblFinder.class != "doublet"]
 # should be loading reference from commmand line
 # identify genes on mitochondria to filter out cells high in MT genes
 location_tidy <- rowData(sce) %>% 

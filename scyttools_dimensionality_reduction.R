@@ -31,7 +31,7 @@ source("scyttools_functions.R")
 # load single cell data
 load(args$RDS)
 
-sce_d <- sce[rowData(sce)$dev <= 2000,]
+sce_d <- sce[rowData(sce)$dev <= 4000,]
 
 filtered_counts <- counts(sce_d)
 filtered_counts <- filtered_counts[rowSums(filtered_counts) > 0,]

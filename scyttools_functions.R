@@ -10,6 +10,8 @@ library(tidygraph)
 library(igraph)
 library(Seurat)
 library(edgeR)
+library(monocle3)
+library(scDblFinder)
 
 set.seed(8675309)
 
