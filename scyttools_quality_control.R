@@ -36,49 +36,20 @@ sce <- scDblFinder(sce,
 sce <- sce[,sce$scDblFinder.class != "doublet"]
 # should be loading reference from commmand line
 # identify genes on mitochondria to filter out cells high in MT genes
-location_tidy <- rowData(sce) %>% 
-  as.data.frame() %>% 
-  left_join(grch38 %>% 
-              select(ensgene, chr), by = c("ID" = "ensgene")) %>% 
-  distinct()
-is.mito <- which(location_tidy$chr == "MT")
 
-if(length(is.mito) == 0){
-  location_tidy <- rowData(sce) %>% 
-    as.data.frame() %>% 
-    left_join(grcm38 %>% 
-                select(ensgene, chr), by = c("ID" = "ensgene")) %>% 
-    distinct()
-  is.mito <- which(location_tidy$chr == "MT")
-}
-
-# should be passing in multicore param from command line
-# QC steps, could probably be a separate script, then QC'd data can be passed around to each of the subroutines
-sce <- calculateQCMetrics(sce, feature_controls=list(Mito=is.mito), BPPARAM = MulticoreParam(7))
-
-# remove cells with log-library sizes that are more than 3 MADs below the median
-qc.lib <- isOutlier(log(sce$total_counts), nmads=3, type="lower")
-# remove cells where the log-transformed number of expressed genes is 3 MADs below the median
-qc.nexprs <- isOutlier(log(sce$total_features_by_counts), nmads=3,
-                       type="lower")
-# remove cells where the number of mito genes is 3 MADs above the median
-qc.mito <- isOutlier(sce$pct_counts_Mito, nmads=3, type="higher")
-
-discard <- qc.lib | qc.nexprs | qc.mito
-
-# Retain only high-quality cells in the SingleCellExperiment.
-sce <- sce[,!discard]
+qc_metrics <- perCellQCMetrics(sce)
 
 ## normalization
 
 cl<-scran::quickCluster(sce)
 sce<-scran::computeSumFactors(sce,clusters=cl)
-sce <- scater::normalize(sce)
+sce <- scater::logNormCounts(sce)
 
 ## feature selection
 
 colnames(sce) <- colData(sce)$Barcode
-ranked_genes <- rank_all_genes(sce, "total_counts")
+colData(sce) <- cbind(colData(sce), qc_metrics)
+ranked_genes <- rank_all_genes(sce, "total")
 
 ## append ranked genes to singleCellExperiment object
 
