@@ -82,11 +82,15 @@ colData(sce_glm_pca) %>%
   select(Barcode, supergroups) %>% 
   write_csv(paste0(args$OUT, "partition-clusters.csv"))
 
-
 colData(sce_glm_pca) %>%
   as.data.frame() %>%
   select(Barcode, clust) %>% 
   write_csv(paste0(args$OUT, "scyttools-clusters.csv"))
+
+colData(sce_glm_pca) %>%
+  as.data.frame() %>%
+  select(Barcode, cyclone_phase) %>% 
+  write_csv(paste0(args$OUT, "cell-cycle-clusters.csv"))
 
 ##########################################################################
 ############################     End code     ############################
