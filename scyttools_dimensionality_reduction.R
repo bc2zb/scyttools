@@ -31,17 +31,10 @@ source("scyttools_functions.R")
 # load single cell data
 load(args$RDS)
 
-sce_d <- sce[rowData(sce)$dev <= 5000,]
+sce_d <- sce[1:5000,]
+sce_d <- GLMPCA(sce_d, assay="counts", 30)
 
-filtered_counts <- counts(sce_d)
-filtered_counts <- filtered_counts[rowSums(filtered_counts) > 0,]
-
-glmpca_poi_30 <- glmpca(as.matrix(filtered_counts),
-                        30,
-                        fam = "poi",
-                        penalty = 1)
-
-reducedDim(sce, "GLM_PCA") <- as.matrix(glmpca_poi_30$factors)
+reducedDim(sce, "GLM_PCA") <- reducedDim(sce_d, "GLMPCA")
 
 sce_glm_pca <- runUMAP(sce, dimred = "GLM_PCA", pca = 30)
 

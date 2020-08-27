@@ -80,13 +80,7 @@ sce <- scater::logNormCounts(sce)
 ## feature selection
 
 colnames(sce) <- colData(sce)$Barcode
-
-ranked_genes <- rank_all_genes(sce, "total")
-
-## append ranked genes to singleCellExperiment object
-
-rowData(sce) <- cbind(rowData(sce),
-                              ranked_genes)
+sce <- scry::devianceFeatureSelection(sce, assay="counts", sorted=TRUE)
 
 ## write out new SingleCellExperiment Object
 
