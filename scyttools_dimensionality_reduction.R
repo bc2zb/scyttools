@@ -38,15 +38,6 @@ reducedDim(sce, "GLM_PCA") <- reducedDim(sce_d, "GLMPCA")
 
 sce_glm_pca <- runUMAP(sce, dimred = "GLM_PCA", pca = 30)
 
-rowData(sce_glm_pca) <- rowData(sce_glm_pca) %>% 
-  as.data.frame() %>% 
-  rownames_to_column("row_names") %>% 
-  left_join(cbind(glmpca_poi_30$loadings, glmpca_poi_30$coefX) %>% 
-              rownames_to_column("row_names") %>% 
-              rename("coefX" = "V1")) %>%
-  column_to_rownames("row_names") %>% 
-  DataFrame()
-
 ## write out new SingleCellExperiment Object
 
 save(sce_glm_pca,

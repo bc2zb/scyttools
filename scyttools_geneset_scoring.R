@@ -24,7 +24,6 @@ args <- docopt(doc)
 
 source("scyttools_functions.R")
 
-library(msigdbr)
 library(data.table)
 
 ##########################################################################
@@ -63,7 +62,7 @@ zmad_sparse <- data.frame(row = names(logcounts(sce_glm_pca)[,1])) %>%
 
 assay(sce_glm_pca, "zmad") <- zmad_sparse[,colnames(zmad_sparse) != fake_cell]
 
-geneset_table <- msigdbr() %>% 
+geneset_table <- msigdbr::msigdbr() %>% 
   select(gs_name, entrez_gene) %>% 
   left_join(grch38 %>% 
               distinct(ensgene, entrez),
@@ -94,8 +93,8 @@ colData(sce_glm_pca) <- colData(sce_glm_pca) %>%
   DataFrame()
 
 # load in signatures
-neuro <- read_csv("~/lgcp/rnaseq/analysis-scripts/neuro_reference_vpca_loadings_grch37.csv")
-ar_signature_weights <- read_csv("~/lgcp/rnaseq/analysis-scripts/ar_signature_weights_Mendiratta.csv")
+neuro <- read_csv("/data/capaldobj/nf-core/lgcp/rnaseq/analysis-scripts/neuro_reference_vpca_loadings_grch37.csv")
+ar_signature_weights <- read_csv("/data/capaldobj/nf-core/lgcp/rnaseq/analysis-scripts/ar_signature_weights_Mendiratta.csv")
 
 
 barcode_ar_signature_score <- vector(length = ncol(sce_glm_pca))
