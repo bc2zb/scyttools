@@ -1,4 +1,35 @@
+#!/usr/bin/env Rscript
+
+require(docopt)
+require(methods)
+
+"
+Usage:
+scyttools_integrate.R (-h | --help | --version)
+scyttools_integrate.R RDS OUT
+
+Description:   This script integrates multiple single cell objects
+
+Options:
+--version       Show the current version.
+
+Arguments:
+RDS    Provide single cell experiment object Rdata file
+OUT    Provide output file
+
+" -> doc
+
+
+args <- docopt(doc)
+
 source("scyttools_functions.R")
+
+##########################################################################
+############################ R code goes here ############################
+##########################################################################
+
+# load single cell data
+load(args$RDS)
 
 sce_list <- c("/data/capaldobj/CS027005_sc_rna_seq_cell_tag//SCAF1426_CT35-1-CTL_1w/trajectoried-sce.Rdata",
     "/data/capaldobj/CS027005_sc_rna_seq_cell_tag/SCAF1510_CT35-1-CTL_4w/trajectoried-sce.Rdata",

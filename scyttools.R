@@ -12,6 +12,7 @@ scyttools.R --cluster_cells RDS OUT
 scyttools.R --trajectory_inference RDS OUT
 scyttools.R --geneset_scoring RDS OUT
 scyttools.R --export_results RDS OUT
+scyttools.R --integrate_batchelor RDS1 RDS2... OUT
 
 
 Description:   This program is a command line interface to running automated single cell RNA sequencing analysis
@@ -22,9 +23,10 @@ Options:
 --quality_control             Perform quality control and remove cells leveraging the Scater and Scran packages
 --dimensionality_reduction    Perform dimensionality reduction using GLM PCA
 --cluster_cells               Cluster cells using GLM PCA and self-organizing maps
---trajectory_inference        Perform trajectory inference using monocle version 2
+--trajectory_inference        Perform trajectory inference using monocle version 3
 --geneset_scoring             Score cells and clusters for geneset activity
 --export_results              Perform differential expression analysis of clusters and export
+--integrate_batchelor         Integrates multiple runs together
 
 Arguments:
 
@@ -76,6 +78,12 @@ if(args$`--version` == T){ # returns version if version is requested
   }else if(args$`--geneset_scoring` == T){
     
     COMMAND <- paste("Rscript scyttools_geneset_scoring.R",
+                     paste("'", args$RDS, "'", sep = ""),
+                     paste("'", args$OUT, "'", sep = ""))
+    system(command = COMMAND)
+  }else if(args$`--integrate_batchelor` == T){
+    
+    COMMAND <- paste("Rscript scyttools_integrate.R",
                      paste("'", args$RDS, "'", sep = ""),
                      paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
