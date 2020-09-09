@@ -12,7 +12,7 @@ scyttools.R --cluster_cells RDS OUT
 scyttools.R --trajectory_inference RDS OUT
 scyttools.R --geneset_scoring RDS OUT
 scyttools.R --export_results RDS OUT
-scyttools.R --integrate_batchelor RDS1 RDS2... OUT
+scyttools.R integrate_batchelor OUT RDS RDS...
 
 
 Description:   This program is a command line interface to running automated single cell RNA sequencing analysis
@@ -81,12 +81,17 @@ if(args$`--version` == T){ # returns version if version is requested
                      paste("'", args$RDS, "'", sep = ""),
                      paste("'", args$OUT, "'", sep = ""))
     system(command = COMMAND)
-  }else if(args$`--integrate_batchelor` == T){
+  }else if(args$`integrate_batchelor` == T){
     
     COMMAND <- paste("Rscript scyttools_integrate.R",
-                     paste("'", args$RDS, "'", sep = ""),
-                     paste("'", args$OUT, "'", sep = ""))
+                     paste("'", args$OUT, "'", sep = ""),
+                     paste("'", 
+                           paste(args$RDS, collapse = "' '"),
+                           "'",
+                           sep = "")
+    )
     system(command = COMMAND)
+    
   }else if(args$`--export_results` == T){
     
     COMMAND <- paste("Rscript scyttools_export_results.R",
