@@ -78,13 +78,20 @@ colData(sce_glm_pca) <- colData(sce_glm_pca) %>%
   column_to_rownames("rownames") %>% 
   DataFrame()
 
+g <- buildSNNGraph(sce_glm_pca, k=10, use.dimred = 'corrected')
+clust <- igraph::cluster_walktrap(g)$membership
 
 cell_data_set <- new_cell_data_set(expression_data = counts(sce_glm_pca),
                                    cell_metadata = colData(sce_glm_pca),
                                    gene_metadata = rowData(sce_glm_pca))
 
-reducedDim(cell_data_set, "UMAP") <- reducedDim(sce_glm_pca, "UMAP")
-cell_data_set <- cluster_cells(cell_data_set)
-cell_data_set <- learn_graph(cell_data_set)
-colData(sce_glm_pca)$supergroups <- factor(cell_data_set@clusters[["UMAP"]]$partitions)
-colData(sce_glm_pca)$monocle_clusters <- factor(cell_data_set@clusters[["UMAP"]]$clusters)
+reducedDim(cell_data_set, "tSNE") <- reducedDim(sce_glm_pca, "TSNE")
+
+cell_data_set <- cluster_cells(cell_data_set,
+                               reduction_method = "tSNE",
+                               partition_qval = 0.01)
+
+colData(sce_glm_pca)$clust <- factor(clust)
+colData(sce_glm_pca)$supergroups <- factor(cell_data_set@clusters[["tSNE"]]$partitions)
+colData(sce_glm_pca)$monocle_clusters <- factor(cell_data_set@clusters[["tSNE"]]$clusters)
+save(sce_glm_pca, file = "ct35-1-integrated.Rdata")
