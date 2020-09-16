@@ -22,7 +22,7 @@ OUT    Provide output file
 args <- docopt(doc)
 
 source("scyttools_functions.R")
-save.image()
+
 ##########################################################################
 ############################ R code goes here ############################
 ##########################################################################
@@ -32,14 +32,14 @@ sce_list <- lapply(args$RDS,
                             load(sce_glm_pca)
                             sce_glm_pca <- sce
                             sce_glm_pca <- sce_glm_pca[order(rownames(rowData(sce_glm_pca))),]
-                            rowData(sce_glm_pca) <- rowData(sce_glm_pca)[,-4]
+                            rowData(sce_glm_pca) <- rowData(sce_glm_pca)[,c("ID", "Symbol")]
                             return(sce_glm_pca)
   }) %>%
   setNames(basename(dirname(args$RDS)))
 
 rescaled <- multiBatchNorm(sce_list)
 
-uncorrected <- cbind(rescaled[[1]], rescaled[[2]], rescaled[[3]])
+uncorrected <- do.call(cbind, rescaled)
 
 sce <- devianceFeatureSelection(uncorrected,
   assay="counts",
@@ -75,6 +75,8 @@ clust <- igraph::cluster_walktrap(g)$membership
 cell_data_set <- new_cell_data_set(expression_data = counts(sce_glm_pca),
                                    cell_metadata = colData(sce_glm_pca),
                                    gene_metadata = rowData(sce_glm_pca))
+
+rownames(colData(cell_data_set)) <- paste(rownames(colData(cell_data_set)), colData(cell_data_set)$batch, sep = "_")
 
 reducedDim(cell_data_set, "tSNE") <- reducedDim(sce_glm_pca, "TSNE")
 
