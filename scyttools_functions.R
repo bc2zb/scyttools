@@ -37,3 +37,39 @@ tidy_sparse_matrix <- function (x)
   ret <- data.frame(row = row, column = col, value = s$x, stringsAsFactors = FALSE)
   ret
 }
+
+listCols<-function(m){
+  #converts a sparse Matrix into a list of its columns
+  expr <- split(m@x, findInterval(seq_len(nnzero(m)), m@p, left.open=TRUE))
+  expr
+}
+
+prolif_loadings <- read_tsv("/Volumes/Group05/CCBB/CS025602_PDO_PDX/metadata-from-lab/PRAD.norm_Beltran_LUAD.norm_SCLC_LUAD.subset_rsem_genes_upper_norm_counts_coding_log2_prolifgenesROC_prcomp_loadings.txt")
+non_prolif_loadings <- read_tsv("/Volumes/Group05/CCBB/CS025602_PDO_PDX/metadata-from-lab/PRAD.norm_Beltran_LUAD.norm_SCLC_LUAD.subset_rsem_genes_upper_norm_counts_coding_log2_rmprolifROC_prcomp_loadings_VARIMAX.txt")
+
+score_signature <- function(m, sig_weights){
+  expr <- split(m@x, findInterval(seq_len(nnzero(m)), m@p, left.open=TRUE))
+  anno <- split(rownames(m)[summary(m)$i], findInterval(seq_len(nnzero(m)), m@p, left.open=TRUE))
+  scores <- lapply(seq_along(expr), function(x){
+    cell_expr <- data.frame(expr = expr[[x]],
+                            ensgene = anno[[x]]) %>% 
+      inner_join(sig_weights,
+                 by = "ensgene")
+    cell_score <- sum(cell_expr$expr*cell_expr$V1)
+    return(cell_score)
+  })
+  names(scores) <- colnames(m)
+  return(scores)
+}
+
+
+baseline3<-function(m,f){
+  vapply(listCols(m), f, FUN.VALUE=0.0)
+}
+
+f<-median
+
+baseline3(logcounts(sce_glm_pca),f)
+
+
+expr_values <- listCols(play_with_me)  
