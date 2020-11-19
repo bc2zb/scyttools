@@ -78,15 +78,15 @@ cell_data_set <- new_cell_data_set(expression_data = counts(sce_glm_pca),
 
 rownames(colData(cell_data_set)) <- paste(rownames(colData(cell_data_set)), colData(cell_data_set)$batch, sep = "_")
 
-reducedDim(cell_data_set, "tSNE") <- reducedDim(sce_glm_pca, "TSNE")
+reducedDim(cell_data_set, "UMAP") <- reducedDim(sce_glm_pca, "UMAP")
 
 cell_data_set <- cluster_cells(cell_data_set,
-                               reduction_method = "tSNE",
+                               reduction_method = "UMAP",
                                partition_qval = 0.01)
 
 colData(sce_glm_pca)$clust <- factor(clust)
-colData(sce_glm_pca)$supergroups <- factor(cell_data_set@clusters[["tSNE"]]$partitions)
-colData(sce_glm_pca)$monocle_clusters <- factor(cell_data_set@clusters[["tSNE"]]$clusters)
+colData(sce_glm_pca)$supergroups <- factor(cell_data_set@clusters[["UMAP"]]$partitions)
+colData(sce_glm_pca)$monocle_clusters <- factor(cell_data_set@clusters[["UMAP"]]$clusters)
 
 ## write out new SingleCellExperiment Object
 
