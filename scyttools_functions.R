@@ -23,8 +23,7 @@ cor_dist <- function(som_codes, method){
   return(1 - corr_mat)
 }
 
-tidy_sparse_matrix <- function (x) 
-{
+tidy_sparse_matrix <- function (x) {
   s <- Matrix::summary(x)
   row <- s$i
   if (!is.null(rownames(x))) {
@@ -44,8 +43,8 @@ listCols<-function(m){
   expr
 }
 
-prolif_loadings <- read_tsv("/Volumes/Group05/CCBB/CS025602_PDO_PDX/metadata-from-lab/PRAD.norm_Beltran_LUAD.norm_SCLC_LUAD.subset_rsem_genes_upper_norm_counts_coding_log2_prolifgenesROC_prcomp_loadings.txt")
-non_prolif_loadings <- read_tsv("/Volumes/Group05/CCBB/CS025602_PDO_PDX/metadata-from-lab/PRAD.norm_Beltran_LUAD.norm_SCLC_LUAD.subset_rsem_genes_upper_norm_counts_coding_log2_rmprolifROC_prcomp_loadings_VARIMAX.txt")
+prolif_loadings <- read_tsv("signatures/PRAD.norm_Beltran_LUAD.norm_SCLC_LUAD.subset_rsem_genes_upper_norm_counts_coding_log2_prolifgenesROC_prcomp_loadings.txt")
+non_prolif_loadings <- read_tsv("signatures/PRAD.norm_Beltran_LUAD.norm_SCLC_LUAD.subset_rsem_genes_upper_norm_counts_coding_log2_rmprolifROC_prcomp_loadings_VARIMAX.txt")
 
 score_signature <- function(m, sig_weights){
   expr <- split(m@x, findInterval(seq_len(nnzero(m)), m@p, left.open=TRUE))
@@ -63,13 +62,13 @@ score_signature <- function(m, sig_weights){
 }
 
 
-baseline3<-function(m,f){
-  vapply(listCols(m), f, FUN.VALUE=0.0)
-}
+#baseline3<-function(m,f){
+#  vapply(listCols(m), f, FUN.VALUE=0.0)
+#}
 
-f<-median
+#f<-median
 
-baseline3(logcounts(sce_glm_pca),f)
+#baseline3(logcounts(sce_glm_pca),f)
 
 
-expr_values <- listCols(play_with_me)  
+#expr_values <- listCols(play_with_me)  
